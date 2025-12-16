@@ -1,0 +1,285 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
+
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Code, FileText, CheckCircle, Shield, Box, ArrowRight, Settings, Workflow, Link2, GitBranch } from 'lucide-react';
+
+export const TechSpecs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'pml' | 'luban' | 'acp'>('pml');
+
+  return (
+    <div className="w-full bg-white rounded-sm border border-stone-200 shadow-sm overflow-hidden my-12">
+      <div className="flex flex-col md:flex-row border-b border-stone-200">
+        <button
+          onClick={() => setActiveTab('pml')}
+          className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
+            activeTab === 'pml' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
+          }`}
+        >
+          PML Syntax
+        </button>
+        <button
+          onClick={() => setActiveTab('luban')}
+          className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
+            activeTab === 'luban' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
+          }`}
+        >
+          Luban Engine
+        </button>
+        <button
+          onClick={() => setActiveTab('acp')}
+          className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
+            activeTab === 'acp' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
+          }`}
+        >
+          ACP Protocol
+        </button>
+      </div>
+
+      <div className="p-8 min-h-[500px] bg-[#FAFAF9]">
+        {activeTab === 'pml' && <PMLViewer />}
+        {activeTab === 'luban' && <LubanWorkflow />}
+        {activeTab === 'acp' && <ACPViewer />}
+      </div>
+    </div>
+  );
+};
+
+const PMLViewer: React.FC = () => {
+  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+
+  const codeLines = [
+    { text: '<role name="Investment_Banker">', tag: 'role', indent: 0 },
+    { text: '  <persona>', tag: 'persona', indent: 1 },
+    { text: '    <trait>Analytical</trait>', tag: 'persona', indent: 2 },
+    { text: '    <trait>Risk-Aware</trait>', tag: 'persona', indent: 2 },
+    { text: '  </persona>', tag: 'persona', indent: 1 },
+    { text: '  ', tag: null, indent: 0 },
+    { text: '  <capabilities>', tag: 'capabilities', indent: 1 },
+    { text: '    <use_tool name="market_data_api" />', tag: 'capabilities', indent: 2 },
+    { text: '    <permission level="read_only" />', tag: 'capabilities', indent: 2 },
+    { text: '  </capabilities>', tag: 'capabilities', indent: 1 },
+    { text: '  ', tag: null, indent: 0 },
+    { text: '  <memory_policy>', tag: 'memory', indent: 1 },
+    { text: '    <strategy>ActivationDiffusion</strategy>', tag: 'memory', indent: 2 },
+    { text: '    <retention>LongTerm</retention>', tag: 'memory', indent: 2 },
+    { text: '  </memory_policy>', tag: 'memory', indent: 1 },
+    { text: '</role>', tag: 'role', indent: 0 },
+  ];
+
+  const explanations: Record<string, { title: string; desc: string }> = {
+    role: { title: 'Role Definition', desc: 'The root element defining the agent entity. Encapsulates all cognitive and behavioral properties.' },
+    persona: { title: 'Persona Layer', desc: 'Defines the psychological traits and tone. Influences the style of response generation.' },
+    capabilities: { title: 'Capability Registry', desc: 'Links to the Luban Tool Engine. Defines which standardized tools the agent can access and their permission scopes.' },
+    memory: { title: 'Memory Policy', desc: 'Configures the Engram Network parameters. Determines how experiences are encoded and the threshold for activation-diffusion retrieval.' },
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row gap-8 h-full">
+      <div className="flex-1 bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-inner border border-stone-800">
+        <div className="flex items-center gap-2 mb-4 text-stone-500 border-b border-stone-800 pb-2">
+            <Code size={14} />
+            <span className="text-xs uppercase">agent_def.pml</span>
+        </div>
+        {codeLines.map((line, idx) => (
+          <div
+            key={idx}
+            onMouseEnter={() => line.tag && setHoveredTag(line.tag)}
+            onMouseLeave={() => setHoveredTag(null)}
+            className={`cursor-pointer transition-colors duration-200 ${
+              hoveredTag === line.tag ? 'bg-nobel-gold/20 text-nobel-gold' : 'text-stone-300 hover:text-white'
+            }`}
+            style={{ paddingLeft: `${line.indent * 1.5}rem` }}
+          >
+            {line.text}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex-1 flex flex-col justify-center">
+        <AnimatePresence mode="wait">
+          {hoveredTag ? (
+            <motion.div
+              key={hoveredTag}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="p-6 bg-white border border-nobel-gold rounded-sm shadow-sm"
+            >
+              <h3 className="font-serif text-2xl text-stone-900 mb-2">{explanations[hoveredTag].title}</h3>
+              <div className="w-12 h-0.5 bg-nobel-gold mb-4"></div>
+              <p className="text-stone-600 leading-relaxed">
+                {explanations[hoveredTag].desc}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-stone-400 p-8 border-2 border-dashed border-stone-200 rounded-sm"
+            >
+              <FileText size={48} className="mx-auto mb-4 opacity-50" />
+              <p className="uppercase tracking-widest text-xs font-bold">Interactive Specs</p>
+              <p className="mt-2">Hover over the PML code to view semantic definitions.</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+const LubanWorkflow: React.FC = () => {
+  const steps = [
+    { icon: <FileText size={20} />, title: "Input", desc: "Raw API Docs (OpenAPI/Swagger)" },
+    { icon: <Settings size={20} />, title: "Generation", desc: "Luban Engine creates Tool Spec" },
+    { icon: <Shield size={20} />, title: "Validation", desc: "Security & Sandbox Testing" },
+    { icon: <Box size={20} />, title: "Registry", desc: "Available to Nuwa Agents" },
+  ];
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full py-8">
+      <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-4xl">
+        {steps.map((step, idx) => (
+          <React.Fragment key={idx}>
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.2 }}
+                className="flex-1 flex flex-col items-center text-center p-4 bg-white border border-stone-200 rounded-sm shadow-sm hover:border-nobel-gold transition-colors group relative"
+            >
+               <div className="absolute top-0 left-0 w-full h-1 bg-stone-100 group-hover:bg-nobel-gold transition-colors"></div> 
+               <div className="w-12 h-12 bg-stone-50 text-stone-400 rounded-full flex items-center justify-center mb-4 group-hover:text-nobel-gold transition-colors">
+                 {step.icon}
+               </div>
+               <h4 className="font-serif font-bold text-stone-900 mb-1">{step.title}</h4>
+               <p className="text-xs text-stone-500">{step.desc}</p>
+            </motion.div>
+            
+            {idx < steps.length - 1 && (
+                <div className="hidden md:flex text-stone-300">
+                    <ArrowRight size={24} />
+                </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div className="mt-12 p-6 bg-stone-100 rounded-sm border border-stone-200 max-w-2xl text-center">
+        <div className="flex items-center justify-center gap-2 mb-2 text-nobel-gold">
+            <CheckCircle size={16} />
+            <span className="text-xs font-bold uppercase tracking-widest">Automation Result</span>
+        </div>
+        <p className="text-stone-600 italic">
+            "Luban reduces tool integration time from hours to <strong className="text-stone-900">3 minutes</strong> per API, enabling rapid capability expansion."
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// --- ACP PROTOCOL VISUALIZATION ---
+const ACPViewer: React.FC = () => {
+  const [state, setState] = useState<'idle' | 'analyzing' | 'complete'>('idle');
+
+  const transitions = {
+    idle: {
+      label: 'IDLE',
+      json: `{
+  "status": "idle",
+  "_links": {
+    "analyze": { "href": "/tasks/analyze", "method": "POST" }
+  }
+}`,
+      next: 'analyzing'
+    },
+    analyzing: {
+        label: 'PROCESSING',
+        json: `{
+  "status": "processing",
+  "_links": {
+    "cancel": { "href": "/tasks/cancel", "method": "DELETE" },
+    "status": { "href": "/tasks/status", "method": "GET" }
+  }
+}`,
+        next: 'complete'
+    },
+    complete: {
+        label: 'COMPLETE',
+        json: `{
+  "status": "completed",
+  "result": "Profit: +12%",
+  "_links": {
+    "report": { "href": "/tasks/report", "method": "GET" },
+    "restart": { "href": "/tasks/reset", "method": "POST" }
+  }
+}`,
+        next: 'idle'
+    }
+  };
+
+  const handleAction = () => {
+    // Determine next state based on current
+    const nextState = transitions[state].next as 'idle' | 'analyzing' | 'complete';
+    setState(nextState);
+  };
+
+  return (
+      <div className="flex flex-col lg:flex-row gap-8 h-full items-center justify-center">
+          <div className="flex-1 max-w-md">
+             <div className="mb-6">
+                <h3 className="font-serif text-2xl text-stone-900 mb-2">HATEOAS State Machine</h3>
+                <div className="w-12 h-0.5 bg-nobel-gold mb-4"></div>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                   The <strong>Agent Context Protocol (ACP)</strong> allows agents to function like web browsers. Instead of hardcoding tool sequences, agents receive available actions (links) dynamically based on their current state.
+                </p>
+             </div>
+             
+             <div className="flex gap-4 mb-4">
+                {(Object.keys(transitions) as Array<keyof typeof transitions>).map((s) => (
+                    <div 
+                        key={s} 
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-bold uppercase tracking-widest transition-all ${state === s ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-400 border-stone-200'}`}
+                    >
+                        {state === s && <motion.div layoutId="dot" className="w-2 h-2 rounded-full bg-nobel-gold" />}
+                        {transitions[s].label}
+                    </div>
+                ))}
+             </div>
+
+             <button 
+                onClick={handleAction}
+                className="flex items-center gap-2 px-6 py-3 bg-nobel-gold text-white rounded-sm font-medium shadow-sm hover:bg-stone-900 transition-colors text-sm uppercase tracking-widest"
+             >
+                <GitBranch size={16} />
+                Trigger Transition
+             </button>
+          </div>
+
+          <div className="flex-1 w-full max-w-md bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-xl border border-stone-800 relative group">
+             <div className="flex items-center justify-between mb-4 border-b border-stone-800 pb-2">
+                 <div className="flex items-center gap-2 text-stone-500">
+                    <Link2 size={14} />
+                    <span className="text-xs uppercase">protocol_response.json</span>
+                 </div>
+                 <span className="text-[10px] text-nobel-gold uppercase tracking-widest animate-pulse">Live State</span>
+             </div>
+             
+             <AnimatePresence mode="wait">
+                 <motion.pre
+                    key={state}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-stone-300 whitespace-pre-wrap"
+                 >
+                    {transitions[state].json}
+                 </motion.pre>
+             </AnimatePresence>
+          </div>
+      </div>
+  )
+}
