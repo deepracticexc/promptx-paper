@@ -72,7 +72,7 @@ const PaperReaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               </div>
            </div>
            <div className="flex items-center gap-2">
-              <a href="/PromptX_WWW26_Paper.pdf" download className="p-2 text-stone-400 hover:text-stone-900 transition-colors" title="Download PDF">
+              <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} download className="p-2 text-stone-400 hover:text-stone-900 transition-colors" title="Download PDF">
                  <Download size={18} />
               </a>
               <button onClick={onClose} className="p-2 text-stone-400 hover:text-red-500 transition-colors">
@@ -114,10 +114,10 @@ const PaperReaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <div className="h-32 flex flex-col items-center justify-center gap-4 bg-stone-50 border border-dashed border-stone-200">
                  <span className="text-stone-400 text-xs uppercase tracking-widest">[Preview Ends]</span>
                  <div className="flex gap-3">
-                    <a href="/PromptX_WWW26_Paper.pdf" target="_blank" className="px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-widest rounded-sm hover:bg-nobel-gold transition-colors">
+                    <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} target="_blank" className="px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-widest rounded-sm hover:bg-nobel-gold transition-colors">
                        View Full PDF
                     </a>
-                    <a href="/PromptX_WWW26_Paper.pdf" download className="px-4 py-2 border border-stone-300 text-stone-600 text-xs uppercase tracking-widest rounded-sm hover:border-nobel-gold hover:text-nobel-gold transition-colors">
+                    <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} download className="px-4 py-2 border border-stone-300 text-stone-600 text-xs uppercase tracking-widest rounded-sm hover:border-nobel-gold hover:text-nobel-gold transition-colors">
                        Download
                     </a>
                  </div>
@@ -168,7 +168,7 @@ const App: React.FC = () => {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#FAFAF9]/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <img src="/promptx-logo.png" alt="PromptX" className="w-8 h-8" />
+            <img src={import.meta.env.BASE_URL + "promptx-logo.png"} alt="PromptX" className="w-8 h-8" />
             <span className={`font-serif font-bold text-lg tracking-wide transition-opacity ${scrolled ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
               PROMPT<span className="text-nobel-gold group-hover:text-stone-900 transition-colors">X</span> <span className="font-normal text-stone-400 text-xs ml-2">2026</span>
             </span>
@@ -490,7 +490,7 @@ const App: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
                 <div className="text-center md:text-left">
                     <div className="text-white font-serif font-bold text-2xl mb-2 flex items-center gap-2 justify-center md:justify-start">
-                        <img src="/promptx-logo.png" alt="PromptX" className="w-6 h-6" />
+                        <img src={import.meta.env.BASE_URL + "promptx-logo.png"} alt="PromptX" className="w-6 h-6" />
                         PromptX
                     </div>
                     <p className="text-sm text-stone-500">Cognitive Agent Platform with Long-term Memory</p>
