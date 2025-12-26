@@ -12,9 +12,13 @@ export const TechSpecs: React.FC = () => {
 
   return (
     <div className="w-full bg-white rounded-sm border border-stone-200 shadow-sm overflow-hidden my-12">
-      <div className="flex flex-col md:flex-row border-b border-stone-200">
+      <div className="flex flex-col md:flex-row border-b border-stone-200" role="tablist" aria-label="Technical specifications">
         <button
           onClick={() => setActiveTab('pml')}
+          role="tab"
+          aria-selected={activeTab === 'pml'}
+          aria-controls="panel-pml"
+          id="tab-pml"
           className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
             activeTab === 'pml' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
           }`}
@@ -23,6 +27,10 @@ export const TechSpecs: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('luban')}
+          role="tab"
+          aria-selected={activeTab === 'luban'}
+          aria-controls="panel-luban"
+          id="tab-luban"
           className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
             activeTab === 'luban' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
           }`}
@@ -31,6 +39,10 @@ export const TechSpecs: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('acp')}
+          role="tab"
+          aria-selected={activeTab === 'acp'}
+          aria-controls="panel-acp"
+          id="tab-acp"
           className={`flex-1 py-4 text-sm font-bold uppercase tracking-widest transition-colors ${
             activeTab === 'acp' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
           }`}
@@ -40,9 +52,15 @@ export const TechSpecs: React.FC = () => {
       </div>
 
       <div className="p-8 min-h-[500px] bg-[#FAFAF9]">
-        {activeTab === 'pml' && <PMLViewer />}
-        {activeTab === 'luban' && <LubanWorkflow />}
-        {activeTab === 'acp' && <ACPViewer />}
+        <div role="tabpanel" id="panel-pml" aria-labelledby="tab-pml" hidden={activeTab !== 'pml'}>
+          {activeTab === 'pml' && <PMLViewer />}
+        </div>
+        <div role="tabpanel" id="panel-luban" aria-labelledby="tab-luban" hidden={activeTab !== 'luban'}>
+          {activeTab === 'luban' && <LubanWorkflow />}
+        </div>
+        <div role="tabpanel" id="panel-acp" aria-labelledby="tab-acp" hidden={activeTab !== 'acp'}>
+          {activeTab === 'acp' && <ACPViewer />}
+        </div>
       </div>
     </div>
   );

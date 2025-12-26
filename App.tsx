@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { HeroScene } from './components/QuantumScene';
 import { MemoryActivationDiagram, ArchitectureDiagram, ImpactMetrics, IssueFrameworkDiagram } from './components/Diagrams';
 import { EngramNetwork3D } from './components/EngramNetwork3D';
@@ -23,6 +23,7 @@ const AuthorCard = ({ name, role, delay }: { name: string, role: string, delay: 
 
 const BibTeXSection = () => {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
   const bibtex = `@inproceedings{promptx2026,
   title={PromptX: A Cognitive Agent Platform with Long-term Memory},
   author={Wang, Binhao and Huang, Jianglin and Hu, Xiao and Jiang, Shan and Wang, Maolin and Yang, Ching-ho},
@@ -30,11 +31,19 @@ const BibTeXSection = () => {
   year={2026}
 }`;
 
-  const handleCopy = () => {
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(bibtex);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => setCopied(false), 2000);
+  }, [bibtex]);
 
   return (
     <div className="mt-16 w-full max-w-3xl mx-auto">
@@ -139,9 +148,21 @@ const App: React.FC = () => {
     // Scroll to top on mount to prevent Three.js canvas from causing scroll jump
     window.scrollTo(0, 0);
 
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Debounced scroll handler for better performance
+    let timeoutId: number | null = null;
+    const handleScroll = () => {
+      if (timeoutId) return;
+      timeoutId = window.setTimeout(() => {
+        setScrolled(window.scrollY > 50);
+        timeoutId = null;
+      }, 16); // ~60fps
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const scrollToSection = (id: string) => (e: React.MouseEvent) => {
