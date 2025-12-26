@@ -199,16 +199,18 @@ const App: React.FC = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 bg-[#FAFAF9] flex flex-col items-center justify-center gap-8 text-xl font-serif animate-fade-in">
+        <div className="fixed inset-0 z-40 bg-[#FAFAF9] flex flex-col items-center justify-center gap-6 text-xl font-serif animate-fade-in">
             <a href="#overview" onClick={scrollToSection('overview')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Overview</a>
             <a href="#architecture" onClick={scrollToSection('architecture')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Architecture</a>
+            <a href="#specs" onClick={scrollToSection('specs')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Specs</a>
             <a href="#demo" onClick={scrollToSection('demo')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Demo</a>
+            <a href="#impact" onClick={scrollToSection('impact')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Impact</a>
             <a href="#team" onClick={scrollToSection('team')} className="hover:text-nobel-gold transition-colors cursor-pointer uppercase tracking-widest text-sm">Team</a>
-            <a 
-              href="https://github.com/Deepractice/PromptX" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              onClick={() => setMenuOpen(false)} 
+            <a
+              href="https://github.com/Deepractice/PromptX"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
               className="px-8 py-3 bg-stone-900 text-white rounded-sm shadow-lg cursor-pointer uppercase tracking-widest text-sm"
             >
               GitHub

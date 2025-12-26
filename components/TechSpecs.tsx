@@ -78,8 +78,8 @@ const PMLViewer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 h-full">
-      <div className="flex-1 bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-inner border border-stone-800">
+    <div className="flex flex-col md:flex-row gap-8">
+      <div className="md:flex-1 bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-inner border border-stone-800 max-h-[300px] md:max-h-none overflow-y-auto">
         <div className="flex items-center gap-2 mb-4 text-stone-500 border-b border-stone-800 pb-2">
             <Code size={14} />
             <span className="text-xs uppercase">agent_def.pml</span>
@@ -99,7 +99,7 @@ const PMLViewer: React.FC = () => {
         ))}
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="md:flex-1 flex flex-col justify-center min-h-[200px]">
         <AnimatePresence mode="wait">
           {hoveredTag ? (
             <motion.div
@@ -228,8 +228,8 @@ const ACPViewer: React.FC = () => {
   };
 
   return (
-      <div className="flex flex-col lg:flex-row gap-8 h-full items-center justify-center">
-          <div className="flex-1 max-w-md">
+      <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
+          <div className="lg:flex-1 w-full max-w-md">
              <div className="mb-6">
                 <h3 className="font-serif text-2xl text-stone-900 mb-2">HATEOAS State Machine</h3>
                 <div className="w-12 h-0.5 bg-nobel-gold mb-4"></div>
@@ -259,7 +259,7 @@ const ACPViewer: React.FC = () => {
              </button>
           </div>
 
-          <div className="flex-1 w-full max-w-md bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-xl border border-stone-800 relative group">
+          <div className="lg:flex-1 w-full max-w-md bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-xl border border-stone-800 relative group">
              <div className="flex items-center justify-between mb-4 border-b border-stone-800 pb-2">
                  <div className="flex items-center gap-2 text-stone-500">
                     <Link2 size={14} />

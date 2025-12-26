@@ -148,10 +148,10 @@ export const DemoSimulation: React.FC = () => {
   const currentState = steps[step].state as SystemState | undefined;
 
   return (
-    <div className="flex flex-col lg:flex-row h-[600px] w-full bg-white rounded-xl border border-stone-200 shadow-xl overflow-hidden">
-      
+    <div className="flex flex-col lg:flex-row lg:h-[600px] w-full bg-white rounded-xl border border-stone-200 shadow-xl overflow-hidden">
+
       {/* Left Panel: Chat Interface */}
-      <div className="flex-1 flex flex-col bg-[#FAFAF9] border-r border-stone-200 relative">
+      <div className="h-[350px] lg:h-auto lg:flex-1 flex flex-col bg-[#FAFAF9] border-b lg:border-b-0 lg:border-r border-stone-200 relative">
         <div className="p-4 border-b border-stone-200 bg-white flex justify-between items-center">
             <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -226,7 +226,7 @@ export const DemoSimulation: React.FC = () => {
       </div>
 
       {/* Right Panel: System Internals */}
-      <div className="flex-1 bg-[#1c1917] text-stone-300 flex flex-col font-mono text-xs overflow-hidden relative">
+      <div className="h-[350px] lg:h-auto lg:flex-1 bg-[#1c1917] text-stone-300 flex flex-col font-mono text-xs overflow-hidden relative">
         <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
             <Code size={120} />
         </div>

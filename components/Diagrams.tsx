@@ -115,7 +115,7 @@ export const MemoryActivationDiagram: React.FC = () => {
         Click the <strong>Query Node</strong> to trigger spreading activation. The system recalls 3-day old "Index Optimization" memories based on conceptual links, not just keywords.
       </p>
       
-      <div className="relative w-full max-w-md h-80 bg-[#FAFAF9] rounded-sm border border-stone-200 overflow-hidden">
+      <div className="relative w-full max-w-md h-64 md:h-80 bg-[#FAFAF9] rounded-sm border border-stone-200 overflow-hidden">
          <svg className="absolute inset-0 w-full h-full pointer-events-none">
             {edges.map((e, i) => {
                 const s = nodes.find(n => n.id === e.s);
