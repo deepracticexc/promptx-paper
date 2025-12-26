@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { Network, Brain, Database, Zap, ArrowRight, Share2, Layers, Search, MessageSquare, FileJson, CheckCircle } from 'lucide-react';
+import { Network, Brain, Database, Zap, ArrowRight, Share2, Layers, Search, MessageSquare, FileJson, CheckCircle, Code, Shield, Box, Settings } from 'lucide-react';
 
 // --- ISSUE FRAMEWORK DIAGRAM ---
 // Visualizes the Nuwa Engine process: Initiate, Structure, Socratic, Unify, Execute
@@ -39,6 +39,48 @@ export const IssueFrameworkDiagram: React.FC = () => {
                     )}
                 </React.Fragment>
             ))}
+        </div>
+    );
+};
+
+// --- LUBAN TOOL INTEGRATION WORKFLOW ---
+// Visualizes the Luban Engine process: Input -> Generation -> Validation -> Registry
+export const LubanWorkflowDiagram: React.FC = () => {
+    const steps = [
+        { icon: <Code size={14} />, name: 'Parse', color: 'from-blue-400 to-blue-500' },
+        { icon: <Settings size={14} />, name: 'Generate', color: 'from-amber-400 to-amber-500' },
+        { icon: <Shield size={14} />, name: 'Validate', color: 'from-emerald-400 to-emerald-500' },
+        { icon: <Box size={14} />, name: 'Register', color: 'from-violet-400 to-violet-500' },
+    ];
+
+    return (
+        <div className="flex flex-col gap-3 w-full p-3 bg-white border border-stone-200 rounded-sm shadow-sm mt-4">
+            {/* Compact workflow display */}
+            <div className="flex items-center justify-center gap-1">
+                {steps.map((step, idx) => (
+                    <React.Fragment key={idx}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: idx * 0.1 }}
+                            className="flex flex-col items-center text-center group"
+                        >
+                            <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center text-white mb-1 shadow-sm group-hover:scale-110 transition-transform`}>
+                                {step.icon}
+                            </div>
+                            <span className="text-[10px] font-medium text-stone-700">{step.name}</span>
+                        </motion.div>
+                        {idx < steps.length - 1 && (
+                            <ArrowRight size={12} className="text-stone-300 flex-shrink-0 mx-1" />
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+            {/* Result banner */}
+            <div className="flex items-center justify-center gap-2 py-1.5 bg-stone-50 rounded-sm border border-stone-100">
+                <CheckCircle size={12} className="text-nobel-gold" />
+                <span className="text-[10px] text-stone-500"><strong className="text-stone-700">3 min</strong> API → AI Tool</span>
+            </div>
         </div>
     );
 };

@@ -66,25 +66,80 @@ export const TechSpecs: React.FC = () => {
   );
 };
 
+// Syntax highlighting helper
+const highlightPML = (text: string): JSX.Element => {
+  // Pattern to match XML-like syntax
+  const parts: JSX.Element[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    // Match opening/closing tag with attributes: <tag attr="value"> or </tag> or <tag />
+    const tagMatch = remaining.match(/^(<\/?)([\w_]+)((?:\s+[\w_]+="[^"]*")*)\s*(\/?>)/);
+    if (tagMatch) {
+      const [full, bracket, tagName, attrs, closeBracket] = tagMatch;
+      parts.push(<span key={key++} className="text-stone-500">{bracket}</span>);
+      parts.push(<span key={key++} className="text-pink-400">{tagName}</span>);
+
+      // Parse attributes
+      if (attrs) {
+        const attrRegex = /([\w_]+)="([^"]*)"/g;
+        let attrMatch;
+        let attrStr = attrs;
+        while ((attrMatch = attrRegex.exec(attrs)) !== null) {
+          const [, attrName, attrValue] = attrMatch;
+          const beforeAttr = attrStr.indexOf(attrMatch[0]);
+          if (beforeAttr > 0) {
+            parts.push(<span key={key++} className="text-stone-500">{attrStr.slice(0, beforeAttr)}</span>);
+          }
+          parts.push(<span key={key++} className="text-stone-500"> </span>);
+          parts.push(<span key={key++} className="text-sky-400">{attrName}</span>);
+          parts.push(<span key={key++} className="text-stone-500">=</span>);
+          parts.push(<span key={key++} className="text-amber-400">"{attrValue}"</span>);
+          attrStr = attrStr.slice(attrStr.indexOf(attrMatch[0]) + attrMatch[0].length);
+        }
+      }
+
+      parts.push(<span key={key++} className="text-stone-500">{closeBracket}</span>);
+      remaining = remaining.slice(full.length);
+      continue;
+    }
+
+    // Match text content between tags
+    const textMatch = remaining.match(/^([^<]+)/);
+    if (textMatch) {
+      parts.push(<span key={key++} className="text-emerald-400">{textMatch[1]}</span>);
+      remaining = remaining.slice(textMatch[1].length);
+      continue;
+    }
+
+    // Fallback: single character
+    parts.push(<span key={key++} className="text-stone-300">{remaining[0]}</span>);
+    remaining = remaining.slice(1);
+  }
+
+  return <>{parts}</>;
+};
+
 const PMLViewer: React.FC = () => {
-  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string>('role'); // Default to showing 'role' explanation
 
   const codeLines = [
     { text: '<role name="Investment_Banker">', tag: 'role', indent: 0 },
-    { text: '  <persona>', tag: 'persona', indent: 1 },
-    { text: '    <trait>Analytical</trait>', tag: 'persona', indent: 2 },
-    { text: '    <trait>Risk-Aware</trait>', tag: 'persona', indent: 2 },
-    { text: '  </persona>', tag: 'persona', indent: 1 },
-    { text: '  ', tag: null, indent: 0 },
-    { text: '  <capabilities>', tag: 'capabilities', indent: 1 },
-    { text: '    <use_tool name="market_data_api" />', tag: 'capabilities', indent: 2 },
-    { text: '    <permission level="read_only" />', tag: 'capabilities', indent: 2 },
-    { text: '  </capabilities>', tag: 'capabilities', indent: 1 },
-    { text: '  ', tag: null, indent: 0 },
-    { text: '  <memory_policy>', tag: 'memory', indent: 1 },
-    { text: '    <strategy>ActivationDiffusion</strategy>', tag: 'memory', indent: 2 },
-    { text: '    <retention>LongTerm</retention>', tag: 'memory', indent: 2 },
-    { text: '  </memory_policy>', tag: 'memory', indent: 1 },
+    { text: '<persona>', tag: 'persona', indent: 1 },
+    { text: '<trait>Analytical</trait>', tag: 'persona', indent: 2 },
+    { text: '<trait>Risk-Aware</trait>', tag: 'persona', indent: 2 },
+    { text: '</persona>', tag: 'persona', indent: 1 },
+    { text: '', tag: null, indent: 0 },
+    { text: '<capabilities>', tag: 'capabilities', indent: 1 },
+    { text: '<use_tool name="market_data_api" />', tag: 'capabilities', indent: 2 },
+    { text: '<permission level="read_only" />', tag: 'capabilities', indent: 2 },
+    { text: '</capabilities>', tag: 'capabilities', indent: 1 },
+    { text: '', tag: null, indent: 0 },
+    { text: '<memory_policy>', tag: 'memory', indent: 1 },
+    { text: '<strategy>ActivationDiffusion</strategy>', tag: 'memory', indent: 2 },
+    { text: '<retention>LongTerm</retention>', tag: 'memory', indent: 2 },
+    { text: '</memory_policy>', tag: 'memory', indent: 1 },
     { text: '</role>', tag: 'role', indent: 0 },
   ];
 
@@ -96,54 +151,44 @@ const PMLViewer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8">
-      <div className="md:flex-1 bg-[#1c1917] rounded-sm p-6 font-mono text-sm overflow-hidden shadow-inner border border-stone-800 max-h-[300px] md:max-h-none overflow-y-auto">
-        <div className="flex items-center gap-2 mb-4 text-stone-500 border-b border-stone-800 pb-2">
-            <Code size={14} />
-            <span className="text-xs uppercase">agent_def.pml</span>
+    <div className="flex flex-col md:flex-row gap-6">
+      <div className="md:flex-1 bg-[#1c1917] rounded-sm p-4 md:p-6 font-mono text-sm shadow-inner border border-stone-800 max-h-[280px] md:max-h-none overflow-y-auto">
+        <div className="flex items-center justify-between gap-2 mb-3 text-stone-500 border-b border-stone-800 pb-2">
+            <div className="flex items-center gap-2">
+              <Code size={14} />
+              <span className="text-xs uppercase">agent_def.pml</span>
+            </div>
+            <span className="text-sm animate-bounce">👇</span>
         </div>
         {codeLines.map((line, idx) => (
           <div
             key={idx}
-            onMouseEnter={() => line.tag && setHoveredTag(line.tag)}
-            onMouseLeave={() => setHoveredTag(null)}
-            className={`cursor-pointer transition-colors duration-200 ${
-              hoveredTag === line.tag ? 'bg-nobel-gold/20 text-nobel-gold' : 'text-stone-300 hover:text-white'
+            onClick={() => line.tag && setSelectedTag(line.tag)}
+            className={`cursor-pointer transition-colors duration-200 leading-relaxed ${
+              selectedTag === line.tag ? 'bg-nobel-gold/20 border-l-2 border-nobel-gold' : 'hover:bg-stone-800/50 border-l-2 border-transparent'
             }`}
-            style={{ paddingLeft: `${line.indent * 1.5}rem` }}
+            style={{ paddingLeft: `${line.indent * 1.2}rem` }}
           >
-            {line.text}
+            {line.text ? highlightPML(line.text) : '\u00A0'}
           </div>
         ))}
       </div>
 
-      <div className="md:flex-1 flex flex-col justify-center min-h-[200px]">
+      <div className="md:flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">
-          {hoveredTag ? (
-            <motion.div
-              key={hoveredTag}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="p-6 bg-white border border-nobel-gold rounded-sm shadow-sm"
-            >
-              <h3 className="font-serif text-2xl text-stone-900 mb-2">{explanations[hoveredTag].title}</h3>
-              <div className="w-12 h-0.5 bg-nobel-gold mb-4"></div>
-              <p className="text-stone-600 leading-relaxed">
-                {explanations[hoveredTag].desc}
-              </p>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-stone-400 p-8 border-2 border-dashed border-stone-200 rounded-sm"
-            >
-              <FileText size={48} className="mx-auto mb-4 opacity-50" />
-              <p className="uppercase tracking-widest text-xs font-bold">Interactive Specs</p>
-              <p className="mt-2">Hover over the PML code to view semantic definitions.</p>
-            </motion.div>
-          )}
+          <motion.div
+            key={selectedTag}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-5 bg-white border border-nobel-gold/50 rounded-sm shadow-sm"
+          >
+            <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-2">{explanations[selectedTag].title}</h3>
+            <div className="w-10 h-0.5 bg-nobel-gold mb-3"></div>
+            <p className="text-stone-600 leading-relaxed text-sm">
+              {explanations[selectedTag].desc}
+            </p>
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>
@@ -215,7 +260,7 @@ const ACPViewer: React.FC = () => {
       next: 'analyzing'
     },
     analyzing: {
-        label: 'PROCESSING',
+        label: 'RUN',
         json: `{
   "status": "processing",
   "_links": {
@@ -226,7 +271,7 @@ const ACPViewer: React.FC = () => {
         next: 'complete'
     },
     complete: {
-        label: 'COMPLETE',
+        label: 'DONE',
         json: `{
   "status": "completed",
   "result": "Profit: +12%",
@@ -256,13 +301,13 @@ const ACPViewer: React.FC = () => {
                 </p>
              </div>
              
-             <div className="flex gap-4 mb-4">
+             <div className="flex flex-wrap gap-2 mb-4">
                 {(Object.keys(transitions) as Array<keyof typeof transitions>).map((s) => (
-                    <div 
-                        key={s} 
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border text-xs font-bold uppercase tracking-widest transition-all ${state === s ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-400 border-stone-200'}`}
+                    <div
+                        key={s}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm border text-[10px] font-bold uppercase tracking-wider transition-all ${state === s ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-400 border-stone-200'}`}
                     >
-                        {state === s && <motion.div layoutId="dot" className="w-2 h-2 rounded-full bg-nobel-gold" />}
+                        {state === s && <motion.div layoutId="dot" className="w-1.5 h-1.5 rounded-full bg-nobel-gold" />}
                         {transitions[s].label}
                     </div>
                 ))}

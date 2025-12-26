@@ -105,11 +105,26 @@ const InteractiveGroup = ({ children }: { children: React.ReactNode }) => {
 export const HeroScene: React.FC = () => {
   const nodeCount = 40;
   const nodes = useMemo(() => {
-      return new Array(nodeCount).fill(0).map(() => [
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 5,
-          (Math.random() - 0.5) * 5
-      ] as [number, number, number]);
+      // Generate nodes that avoid the center area where the title is
+      const generatedNodes: [number, number, number][] = [];
+      let attempts = 0;
+
+      while (generatedNodes.length < nodeCount && attempts < 200) {
+          const x = (Math.random() - 0.5) * 10;
+          const y = (Math.random() - 0.5) * 6;
+          const z = (Math.random() - 0.5) * 5;
+
+          // Create a "dead zone" in the center for the title
+          // Title is roughly in the center, so avoid x: -2.5 to 2.5, y: -1 to 1.5
+          const inDeadZone = Math.abs(x) < 2.5 && y > -1 && y < 1.5;
+
+          if (!inDeadZone) {
+              generatedNodes.push([x, y, z]);
+          }
+          attempts++;
+      }
+
+      return generatedNodes;
   }, []);
 
   // Nobel Gold Palette

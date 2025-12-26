@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Code, Database, Zap, Play, RotateCcw } from 'lucide-react';
+import { Send, Bot, User, Code, Database, Zap, Play, RotateCcw, CheckCircle, Sparkles } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -21,10 +21,35 @@ interface SystemState {
   highlight?: string;
 }
 
+// Confetti particle component
+const ConfettiParticle: React.FC<{ delay: number; left: string }> = ({ delay, left }) => (
+  <motion.div
+    className="absolute w-2 h-2 rounded-full"
+    style={{
+      left,
+      top: '-10px',
+      backgroundColor: ['#C5A059', '#10b981', '#3b82f6', '#f59e0b', '#ec4899'][Math.floor(Math.random() * 5)]
+    }}
+    initial={{ y: 0, opacity: 1, rotate: 0 }}
+    animate={{
+      y: [0, 400],
+      opacity: [1, 1, 0],
+      rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+      x: [0, (Math.random() - 0.5) * 100]
+    }}
+    transition={{
+      duration: 2 + Math.random(),
+      delay,
+      ease: "easeOut"
+    }}
+  />
+);
+
 export const DemoSimulation: React.FC = () => {
   const [step, setStep] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const steps = [
@@ -110,7 +135,7 @@ export const DemoSimulation: React.FC = () => {
 
   const handleNextStep = async () => {
     if (step >= steps.length - 1) return;
-    
+
     const nextStepIdx = step + 1;
     const nextStepData = steps[nextStepIdx];
     setStep(nextStepIdx);
@@ -125,7 +150,7 @@ export const DemoSimulation: React.FC = () => {
         text: nextStepData.user || "",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
-      
+
       // Agent Thinking/Typing
       setTimeout(() => {
         setMessages(prev => [...prev, {
@@ -135,6 +160,12 @@ export const DemoSimulation: React.FC = () => {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }]);
         setIsTyping(false);
+
+        // Trigger celebration on last step
+        if (nextStepIdx === steps.length - 1) {
+          setShowCelebration(true);
+          setTimeout(() => setShowCelebration(false), 3000);
+        }
       }, 1500);
     }, 800);
   };
@@ -143,12 +174,60 @@ export const DemoSimulation: React.FC = () => {
     setStep(0);
     setMessages([]);
     setIsTyping(false);
+    setShowCelebration(false);
   };
 
   const currentState = steps[step].state as SystemState | undefined;
 
   return (
-    <div className="flex flex-col lg:flex-row lg:h-[600px] w-full bg-white rounded-xl border border-stone-200 shadow-xl overflow-hidden">
+    <div className="flex flex-col lg:flex-row lg:h-[600px] w-full bg-white rounded-xl border border-stone-200 shadow-xl overflow-hidden relative">
+
+      {/* Celebration Overlay */}
+      <AnimatePresence>
+        {showCelebration && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-50 pointer-events-none overflow-hidden"
+          >
+            {/* Confetti particles */}
+            {Array.from({ length: 30 }).map((_, i) => (
+              <ConfettiParticle
+                key={i}
+                delay={i * 0.05}
+                left={`${Math.random() * 100}%`}
+              />
+            ))}
+
+            {/* Success badge */}
+            <motion.div
+              initial={{ scale: 0, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", damping: 15 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <div className="bg-white/95 backdrop-blur-sm px-8 py-6 rounded-xl shadow-2xl border border-nobel-gold/30 text-center">
+                <motion.div
+                  initial={{ rotate: -180, scale: 0 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-nobel-gold to-amber-500 flex items-center justify-center shadow-lg"
+                >
+                  <CheckCircle size={32} className="text-white" />
+                </motion.div>
+                <h3 className="font-serif text-xl text-stone-900 mb-1">Demo Complete</h3>
+                <p className="text-stone-500 text-sm flex items-center justify-center gap-1">
+                  <Sparkles size={14} className="text-nobel-gold" />
+                  Long-term Memory in Action
+                  <Sparkles size={14} className="text-nobel-gold" />
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Left Panel: Chat Interface */}
       <div className="h-[350px] lg:h-auto lg:flex-1 flex flex-col bg-[#FAFAF9] border-b lg:border-b-0 lg:border-r border-stone-200 relative">
@@ -164,10 +243,19 @@ export const DemoSimulation: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
             {messages.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center text-stone-400 text-sm">
-                    <Bot size={48} className="mb-4 text-stone-300" />
-                    <p>System Ready.</p>
-                    <p>Start the demo to initialize agents.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                    <div className="relative mb-6">
+                        <div className="w-20 h-20 rounded-full bg-nobel-gold/10 flex items-center justify-center">
+                            <Play size={32} className="text-nobel-gold ml-1" />
+                        </div>
+                        <motion.div
+                            className="absolute inset-0 rounded-full border-2 border-nobel-gold/30"
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                            transition={{ repeat: Infinity, duration: 2 }}
+                        />
+                    </div>
+                    <h4 className="font-serif text-lg text-stone-800 mb-2">Interactive Scenario</h4>
+                    <p className="text-stone-500 text-sm max-w-[200px]">Watch PromptX create tools, roles, and recall memories</p>
                 </div>
             )}
             
@@ -289,8 +377,9 @@ export const DemoSimulation: React.FC = () => {
                         )}
                     </motion.div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-stone-700">
-                        <p>Waiting for input...</p>
+                    <div className="h-full flex flex-col items-center justify-center text-stone-600">
+                        <Code size={40} className="mb-4 text-stone-700" />
+                        <p className="text-sm">System logs will appear here</p>
                     </div>
                 )}
             </AnimatePresence>

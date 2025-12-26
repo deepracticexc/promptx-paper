@@ -3,13 +3,57 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { HeroScene } from './components/QuantumScene';
-import { MemoryActivationDiagram, ArchitectureDiagram, ImpactMetrics, IssueFrameworkDiagram } from './components/Diagrams';
-import { EngramNetwork3D } from './components/EngramNetwork3D';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { MemoryActivationDiagram, ArchitectureDiagram, ImpactMetrics, IssueFrameworkDiagram, LubanWorkflowDiagram } from './components/Diagrams';
 import { DemoSimulation } from './components/DemoSimulation';
 import { TechSpecs } from './components/TechSpecs';
-import { ArrowDown, Menu, X, Github, ExternalLink, FileText, Copy, Check, ChevronUp, Download } from 'lucide-react';
+import { ArrowDown, Menu, X, Github, ExternalLink, FileText, Copy, Check, ChevronUp, Download, Loader2, Moon, Sun, Keyboard } from 'lucide-react';
+
+// Lazy load heavy 3D components
+const HeroScene = lazy(() => import('./components/QuantumScene').then(m => ({ default: m.HeroScene })));
+const EngramNetwork3D = lazy(() => import('./components/EngramNetwork3D').then(m => ({ default: m.EngramNetwork3D })));
+
+// Loading fallback for 3D components
+const SceneLoader = ({ className = "" }: { className?: string }) => (
+  <div className={`flex items-center justify-center ${className}`}>
+    <Loader2 className="w-8 h-8 text-nobel-gold animate-spin" />
+  </div>
+);
+
+// Fade-in section wrapper for scroll animations
+const FadeInSection: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({ children, className = "", delay = 0 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${className}`}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transitionDelay: `${delay}ms`
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const AuthorCard = ({ name, role, delay }: { name: string, role: string, delay: string }) => {
   return (
@@ -139,10 +183,66 @@ const PaperReaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 };
 
+// Section IDs for keyboard navigation
+const SECTIONS = ['overview', 'architecture', 'specs', 'demo', 'memory', 'impact', 'team'];
+
 const App: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isPaperOpen, setIsPaperOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [showKeyboardHint, setShowKeyboardHint] = useState(false);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key) {
+        case 'j': // Scroll down
+          window.scrollBy({ top: 300, behavior: 'smooth' });
+          break;
+        case 'k': // Scroll up
+          window.scrollBy({ top: -300, behavior: 'smooth' });
+          break;
+        case 'g': // Go to top
+          if (e.shiftKey) {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          break;
+        case 'd': // Toggle dark mode
+          if (!e.ctrlKey && !e.metaKey) {
+            setDarkMode(prev => !prev);
+          }
+          break;
+        case '?': // Show keyboard shortcuts
+          setShowKeyboardHint(prev => !prev);
+          break;
+        case 'Escape':
+          setShowKeyboardHint(false);
+          setMenuOpen(false);
+          break;
+        case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+          const idx = parseInt(e.key) - 1;
+          if (idx < SECTIONS.length) {
+            const el = document.getElementById(SECTIONS[idx]);
+            el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Apply dark mode class to document
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     // Scroll to top on mount to prevent Three.js canvas from causing scroll jump
@@ -183,15 +283,68 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAF9] text-stone-800">
-      
+
       <PaperReaderModal isOpen={isPaperOpen} onClose={() => setIsPaperOpen(false)} />
 
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#FAFAF9]/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
+      {/* Keyboard Shortcuts Modal */}
+      {showKeyboardHint && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowKeyboardHint(false)}>
+          <div className="bg-white rounded-lg shadow-2xl p-6 max-w-sm w-full animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-serif text-lg font-bold text-stone-900 flex items-center gap-2">
+                <Keyboard size={18} className="text-nobel-gold" />
+                Keyboard Shortcuts
+              </h3>
+              <button onClick={() => setShowKeyboardHint(false)} className="text-stone-400 hover:text-stone-600">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between items-center py-2 border-b border-stone-100">
+                <span className="text-stone-600">Scroll down</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">j</kbd>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-stone-100">
+                <span className="text-stone-600">Scroll up</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">k</kbd>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-stone-100">
+                <span className="text-stone-600">Go to top</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">g</kbd>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-stone-100">
+                <span className="text-stone-600">Go to bottom</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">G</kbd>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-stone-100">
+                <span className="text-stone-600">Jump to section</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">1-7</kbd>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-stone-600">Toggle this help</span>
+                <kbd className="px-2 py-1 bg-stone-100 rounded text-xs font-mono">?</kbd>
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-stone-400 text-center">Press <kbd className="px-1 bg-stone-100 rounded">Esc</kbd> to close</p>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard Shortcut Hint Button */}
+      <button
+        onClick={() => setShowKeyboardHint(true)}
+        aria-label="Show keyboard shortcuts"
+        className={`fixed bottom-8 left-8 z-40 p-3 bg-white text-stone-600 rounded-full shadow-lg hover:bg-nobel-gold hover:text-white transition-all duration-300 border border-stone-200 hidden md:flex ${scrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+      >
+        <Keyboard size={18} />
+      </button>
+
+      {/* Navigation - hidden at top on mobile, always visible on desktop */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#FAFAF9]/90 backdrop-blur-md shadow-sm py-4 translate-y-0' : 'md:bg-transparent md:py-6 -translate-y-full md:translate-y-0'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <img src={import.meta.env.BASE_URL + "promptx-logo.png"} alt="PromptX" className="w-8 h-8" />
-            <span className={`font-serif font-bold text-lg tracking-wide transition-opacity ${scrolled ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
+            <span className="font-serif font-bold text-lg tracking-wide">
               PROMPT<span className="text-nobel-gold group-hover:text-stone-900 transition-colors">X</span> <span className="font-normal text-stone-400 text-xs ml-2">2026</span>
             </span>
           </div>
@@ -256,7 +409,9 @@ const App: React.FC = () => {
 
       {/* Hero Section */}
       <header className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#FAFAF9] to-[#E7E5E4]">
-        <HeroScene />
+        <Suspense fallback={<SceneLoader className="absolute inset-0" />}>
+          <HeroScene />
+        </Suspense>
         
         <div className="relative z-10 container mx-auto px-6 text-center">
           <div className="inline-block mb-6 px-4 py-1.5 border border-nobel-gold/50 text-nobel-gold text-[10px] tracking-[0.3em] uppercase font-bold rounded-sm backdrop-blur-sm bg-white/50 shadow-sm">
@@ -356,9 +511,10 @@ const App: React.FC = () => {
                     </div>
                     <div className="p-8 border border-stone-800 rounded-sm hover:border-nobel-gold/30 transition-colors duration-300 bg-stone-800/20">
                         <h3 className="font-serif text-2xl text-nobel-gold mb-4">Luban: Tool Integration</h3>
-                        <p className="text-stone-400 leading-relaxed font-light">
+                        <p className="text-stone-400 leading-relaxed font-light mb-6">
                             Integrates any API into AI-callable tools within 3 minutes. Generates capability specifications with security constraints and validates them in a sandbox before registration.
                         </p>
+                        <LubanWorkflowDiagram />
                     </div>
                 </div>
             </div>
@@ -429,8 +585,10 @@ const App: React.FC = () => {
                             </li>
                         </ul>
                     </div>
-                    <div className="bg-[#FAFAF9] p-2 rounded-lg shadow-inner">
-                        <EngramNetwork3D />
+                    <div className="bg-[#FAFAF9] p-2 rounded-lg shadow-inner min-h-[400px]">
+                        <Suspense fallback={<SceneLoader className="h-[400px]" />}>
+                          <EngramNetwork3D />
+                        </Suspense>
                     </div>
                 </div>
             </div>
@@ -528,7 +686,7 @@ const App: React.FC = () => {
                 <div className="flex gap-6 text-sm">
                     <a href="https://github.com/Deepractice/PromptX" className="hover:text-nobel-gold transition-colors">GitHub</a>
                     <a href="https://promptx.deepractice.ai" className="hover:text-nobel-gold transition-colors">Demo</a>
-                    <a href="#" className="hover:text-nobel-gold transition-colors">Documentation</a>
+                    <a href="https://promptx.deepractice.ai/docs" className="hover:text-nobel-gold transition-colors">Documentation</a>
                 </div>
             </div>
             

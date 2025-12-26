@@ -177,7 +177,7 @@ const Node3D: React.FC<NodeProps> = ({ node, activation, onActivate }) => {
         }}
       >
         <div
-          className={`px-3 py-1.5 rounded-md text-sm font-semibold whitespace-nowrap shadow-lg transition-all duration-300 ${
+          className={`px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap shadow-lg transition-all duration-300 ${
             isActive
               ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white scale-110'
               : hovered
@@ -353,17 +353,18 @@ const Scene: React.FC<SceneProps> = ({ nodes, edges, activations, pulseWaves, on
 // Main exported component
 export const EngramNetwork3D: React.FC = () => {
   // Redesigned node layout - clearer hierarchy, no overlapping labels
+  // Nodes are positioned more centrally to avoid label clipping
   const nodes: EngramNode[] = useMemo(() => [
     // Center: Query node
-    { id: 0, position: [0, 0.5, 0], label: 'Query: "Orders Slow"', shortLabel: '🔍 Orders Slow', type: 'query' },
-    // Upper layer: Concept nodes (spread horizontally)
-    { id: 1, position: [-2, 1.2, 0.8], label: 'Latency', shortLabel: 'Latency', type: 'concept' },
-    { id: 2, position: [2, 1.2, -0.8], label: 'DB Index', shortLabel: 'DB Index', type: 'concept' },
-    // Lower layer: Raw memory nodes (spread wider)
-    { id: 3, position: [-2.8, -0.8, 0.5], label: 'Timeout Error', shortLabel: 'Timeout Error', type: 'raw' },
-    { id: 4, position: [2.8, -0.8, -0.5], label: 'Index Optimization', shortLabel: 'Index Optimize', type: 'raw' },
+    { id: 0, position: [0, 0.6, 0], label: 'Query: "Orders Slow"', shortLabel: '🔍 Orders Slow', type: 'query' },
+    // Upper layer: Concept nodes (spread horizontally but within bounds)
+    { id: 1, position: [-1.6, 1.3, 0.6], label: 'Latency', shortLabel: 'Latency', type: 'concept' },
+    { id: 2, position: [1.6, 1.3, -0.6], label: 'DB Index', shortLabel: 'DB Index', type: 'concept' },
+    // Lower layer: Raw memory nodes (kept within visible bounds)
+    { id: 3, position: [-2.0, -0.6, 0.4], label: 'Timeout Error', shortLabel: 'Timeout', type: 'raw' },
+    { id: 4, position: [2.0, -0.6, -0.4], label: 'Index Optimization', shortLabel: 'Index Opt', type: 'raw' },
     // Bottom: Result concept
-    { id: 5, position: [0, -1.5, 0], label: 'Optimization Plan', shortLabel: 'Optimize Plan', type: 'concept' },
+    { id: 5, position: [0, -1.4, 0], label: 'Optimization Plan', shortLabel: 'Opt Plan', type: 'concept' },
   ], []);
 
   // Define edges (connections between nodes) - matching paper's example
@@ -493,7 +494,7 @@ export const EngramNetwork3D: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center p-4 md:p-8 bg-gradient-to-br from-slate-50 to-stone-100 rounded-xl shadow-lg border border-stone-200 my-8">
+    <div className="flex flex-col items-center p-4 md:p-8 bg-gradient-to-br from-slate-50 to-stone-100 rounded-xl shadow-lg border border-stone-200 my-8" style={{ overflow: 'visible' }}>
       <div className="flex items-center gap-3 mb-4">
         <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 animate-pulse shadow-lg shadow-amber-200" />
         <h3 className="font-serif text-xl md:text-2xl text-stone-800 font-semibold">
@@ -507,7 +508,8 @@ export const EngramNetwork3D: React.FC = () => {
       </p>
 
       <div
-        className="relative w-full max-w-3xl h-[380px] md:h-[480px] bg-gradient-to-b from-slate-100 via-white to-slate-50 rounded-xl border border-stone-200 shadow-inner overflow-hidden"
+        className="relative w-full max-w-3xl h-[380px] md:h-[480px] bg-gradient-to-b from-slate-100 via-white to-slate-50 rounded-xl border border-stone-200 shadow-inner"
+        style={{ overflow: 'visible' }}
         role="img"
         aria-label="Interactive 3D visualization of Engram memory network with activation-diffusion"
       >
@@ -531,8 +533,8 @@ export const EngramNetwork3D: React.FC = () => {
         </Canvas>
 
         {/* Click hint overlay */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs font-medium">
-          👆 Click nodes to activate • Drag to rotate
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/60 backdrop-blur-sm rounded-full text-white text-[11px] font-medium whitespace-nowrap">
+          👆 Click • Drag
         </div>
       </div>
 

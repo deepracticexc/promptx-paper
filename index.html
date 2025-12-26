@@ -3,11 +3,76 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PromptX: Cognitive Agent Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>PromptX: Cognitive Agent Platform with Long-term Memory | WWW '26</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="PromptX is a cognitive agent platform enabling AI agents to construct structured memory and develop reasoning over time through Activation-Diffusion Networks and the Agent Context Protocol." />
+    <meta name="keywords" content="PromptX, AI Agent, Long-term Memory, Cognitive Platform, LLM, RAG, Engram, PML, ACP, WWW 2026" />
+    <meta name="author" content="Binhao Wang, Jianglin Huang, Xiao Hu, Shan Jiang, Maolin Wang, Ching-ho Yang" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="PromptX: Cognitive Agent Platform with Long-term Memory" />
+    <meta property="og:description" content="A cognitive agent platform enabling AI agents to construct structured memory through Activation-Diffusion Networks. Published at WWW Companion '26." />
+    <meta property="og:image" content="https://deepractice.github.io/Research/promptx-og.png" />
+    <meta property="og:url" content="https://deepractice.github.io/Research/" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PromptX: Cognitive Agent Platform" />
+    <meta name="twitter:description" content="AI agents with long-term memory through Activation-Diffusion Networks. WWW '26." />
+
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/png" href="/promptx-logo.png" />
+    <link rel="apple-touch-icon" href="/promptx-logo.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C5A059" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Preload Critical Resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" as="style" />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- JSON-LD Structured Data for Academic Paper -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ScholarlyArticle",
+      "name": "PromptX: A Cognitive Agent Platform with Long-term Memory",
+      "headline": "PromptX: A Cognitive Agent Platform with Long-term Memory",
+      "description": "A cognitive agent platform enabling AI agents to construct structured memory and develop reasoning over time through Activation-Diffusion Networks and the Agent Context Protocol.",
+      "author": [
+        {"@type": "Person", "name": "Binhao Wang", "affiliation": "City University of Hong Kong"},
+        {"@type": "Person", "name": "Jianglin Huang", "affiliation": "Deepractice AI Limited"},
+        {"@type": "Person", "name": "Xiao Hu", "affiliation": "Deepractice AI Limited"},
+        {"@type": "Person", "name": "Shan Jiang", "affiliation": "Deepractice AI Limited"},
+        {"@type": "Person", "name": "Maolin Wang", "affiliation": "City University of Hong Kong"},
+        {"@type": "Person", "name": "Ching-ho Yang", "affiliation": "Deepractice AI Limited"}
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "ACM",
+        "url": "https://www.acm.org"
+      },
+      "datePublished": "2026",
+      "isPartOf": {
+        "@type": "PublicationEvent",
+        "name": "WWW Companion '26",
+        "location": "Dubai"
+      },
+      "keywords": ["AI Agent", "Long-term Memory", "Cognitive Platform", "LLM", "RAG", "Engram", "PML", "ACP"],
+      "url": "https://deepractice.github.io/Research/",
+      "mainEntityOfPage": "https://deepractice.github.io/Research/"
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -99,7 +164,28 @@
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
+    <!-- Loading Screen -->
+    <div id="loader" style="position:fixed;inset:0;background:#FAFAF9;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s;">
+      <div style="width:60px;height:60px;border:3px solid #e7e5e4;border-top-color:#C5A059;border-radius:50%;animation:spin 1s linear infinite;"></div>
+      <p style="margin-top:20px;font-family:Playfair Display,serif;color:#78716c;font-size:14px;letter-spacing:2px;">LOADING</p>
+    </div>
+    <style>
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
     <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      // Hide loader when app is ready
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const loader = document.getElementById('loader');
+          if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+          }
+        }, 300);
+      });
+    </script>
 </body>
 </html>
