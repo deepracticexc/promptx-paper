@@ -126,7 +126,7 @@ const PaperReaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               </div>
            </div>
            <div className="flex items-center gap-2">
-              <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} download className="p-2 text-stone-400 hover:text-stone-900 transition-colors" title="Download PDF">
+              <a href={import.meta.env.BASE_URL + "2026_WWW_Demo.pdf"} download className="p-2 text-stone-400 hover:text-stone-900 transition-colors" title="Download PDF">
                  <Download size={18} />
               </a>
               <button onClick={onClose} className="p-2 text-stone-400 hover:text-red-500 transition-colors">
@@ -168,10 +168,10 @@ const PaperReaderModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <div className="h-32 flex flex-col items-center justify-center gap-4 bg-stone-50 border border-dashed border-stone-200">
                  <span className="text-stone-400 text-xs uppercase tracking-widest">[Preview Ends]</span>
                  <div className="flex gap-3">
-                    <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} target="_blank" className="px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-widest rounded-sm hover:bg-nobel-gold transition-colors">
+                    <a href={import.meta.env.BASE_URL + "2026_WWW_Demo.pdf"} target="_blank" className="px-4 py-2 bg-stone-900 text-white text-xs uppercase tracking-widest rounded-sm hover:bg-nobel-gold transition-colors">
                        View Full PDF
                     </a>
-                    <a href={import.meta.env.BASE_URL + "PromptX_WWW26_Paper.pdf"} download className="px-4 py-2 border border-stone-300 text-stone-600 text-xs uppercase tracking-widest rounded-sm hover:border-nobel-gold hover:text-nobel-gold transition-colors">
+                    <a href={import.meta.env.BASE_URL + "2026_WWW_Demo.pdf"} download className="px-4 py-2 border border-stone-300 text-stone-600 text-xs uppercase tracking-widest rounded-sm hover:border-nobel-gold hover:text-nobel-gold transition-colors">
                        Download
                     </a>
                  </div>
